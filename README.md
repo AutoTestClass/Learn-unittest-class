@@ -331,10 +331,9 @@ Ran 3 tests in 0.001s
 OK
 ```
 
-
 ### 命令行工具
 
-####  unitest 命令使用
+#### unitest 命令使用
 
 unittest模块可以从命令行中使用，来运行来自模块、类甚至单个测试方法的测试。
 
@@ -343,6 +342,7 @@ python -m unittest test_module1 test_module2
 python -m unittest test_module.TestClass
 python -m unittest test_module.TestClass.test_method
 ```
+
 > `python -m` 以脚本形式运行库模块.
 
 可以传入包含任何组合模块名称和完全限定的类或方法名称的列表。
@@ -366,7 +366,6 @@ python -m unittest -v test_module
 ```bash
 python -m unittest
 ```
-
 
 ### unitest 命令选项
 
@@ -426,7 +425,8 @@ __重要选项说明__
 python -m unittest -b
 ```
 
-* `-c` / `--catch` : 测试运行期间按`Control + C` 会等待当前测试结束，然后报告到目前为止的所有结果。第二次按`Control + C` 会引发正常的 KeyboardInterrupt 异常。
+* `-c` / `--catch` : 测试运行期间按`Control + C` 会等待当前测试结束，然后报告到目前为止的所有结果。第二次按`Control + C`
+  会引发正常的 KeyboardInterrupt 异常。
 
 ```bash
 python -m unittest -c
@@ -440,7 +440,8 @@ python -m unittest -c
 
 * `-k`：只运行与模式或子字符串匹配的测试方法和类。可以多次使用此选项，这样所有与给定模式中的任何一个匹配的测试用例都会被包括进来。
 
-例如，`-k foo` 会匹配`foo_tests.SomeTest.test_something`，`bar_tests.SomeTest.test_foo`，但不会匹配`bar_tests.FooTest.test_something`。
+例如，`-k foo` 会匹配`foo_tests.SomeTest.test_something`，`bar_tests.SomeTest.test_foo`
+，但不会匹配`bar_tests.FooTest.test_something`。
 
 ```bash
 python -m unittest -k cal
@@ -480,3 +481,63 @@ python -m unittest discover project_directory  "*_test.py"
 ```
 
 除了作为路径外，还可以传入包名作为开始目录，例如`myproject.subpackage.test`。提供的包名将被导入，其在文件系统上的位置将被用作开始目录。
+
+### 断言方法
+
+> unittest的断言方法非常丰富，除了简单的 相等、包含，还有 类型、异常、警告、日志的断言。
+
+TestCase类提供了几种断言方法来检查并报告失败。以下表格列出了最常用的方法（更多断言方法请参见下表）：
+
+| Method                      | Checks that          | New in |
+|-----------------------------|----------------------|--------|
+| `assertEqual(a, b)`         | a == b               |        |
+| `assertNotEqual(a, b)`      | a != b               |        |
+| `assertTrue(x)`             | bool(x) is True      |        |
+| `assertFalse(x)`            | bool(x) is False     |        |
+| `assertIs(a, b)`            | a is b               | 3.1    |
+| `assertIsNot(a, b)`         | a is not b           | 3.1    |
+| `assertIsNone(x)`           | x is None            | 3.1    |
+| `assertIsNotNone(x)`        | x is not None        | 3.1    |
+| `assertIn(a, b)`            | a in b               | 3.1    |
+| `assertNotIn(a, b)`         | a not in b           | 3.1    |
+| `assertIsInstance(a, b)`    | isinstance(a, b)     | 3.2    |
+| `assertNotIsInstance(a, b)` | not isinstance(a, b) | 3.2    |
+
+还可以使用以下方法检查异常、警告和日志消息的生成:
+
+| Method                                          | Checks that                                                          | New in |
+|-------------------------------------------------|----------------------------------------------------------------------|--------|
+| `assertRaises(exc, fun, *args, **kwds)`         | `fun(*args, **kwds)` raises `exc`                                    |        |
+| `assertRaisesRegex(exc, r, fun, *args, **kwds)` | `fun(*args, **kwds)` raises `exc` and the message matches regex `r`  | 3.1    |
+| `assertWarns(warn, fun, *args, **kwds)`         | `fun(*args, **kwds)` raises `warn`                                   | 3.2    |
+| `assertWarnsRegex(warn, r, fun, *args, **kwds)` | `fun(*args, **kwds)` raises `warn` and the message matches regex `r` | 3.2    |
+| `assertLogs(logger, level)`                     | The `with` block logs on `logger` with minimum `level`               | 3.4    |
+| `assertNoLogs(logger, level)`                   | The `with` block does not log on `logger` with minimum `level`       | 3.10   |
+
+还有其他方法可以用来执行更具体的检查，比如：
+
+| Method                       | Checks                                                                            | New in |
+|------------------------------|-----------------------------------------------------------------------------------|--------|
+| `assertAlmostEqual(a, b)`    | `round(a - b, 7) == 0`                                                            |        |
+| `assertNotAlmostEqual(a, b)` | `round(a - b, 7) != 0`                                                            |        |
+| `assertGreater(a, b)`        | `a > b`                                                                           | 3.1    |
+| `assertGreaterEqual(a, b)`   | `a >= b`                                                                          | 3.1    |
+| `assertLess(a, b)`           | `a < b`                                                                           | 3.1    |
+| `assertLessEqual(a, b)`      | `a <= b`                                                                          | 3.1    |
+| `assertRegex(s, r)`          | `r.search(s)`                                                                     | 3.1    |
+| `assertNotRegex(s, r)`       | `not r.search(s)`                                                                 | 3.2    |
+| `assertCountEqual(a, b)`     | `a` and `b` have the same elements in the same number, regardless of their order. | 3.2    |
+
+__assertEqual()__
+
+`assertEqual()` 自动使用的特定类型方法列表如下表所示。请注意，通常不需要直接调用这些方法。
+
+| Method                        | Checks              | New in |
+|-------------------------------|---------------------|--------|
+| `assertMultiLineEqual(a, b)`	 | strings             | 3.1    |
+| `assertSequenceEqual(a, b)`	  | sequences	          | 3.1    |
+| `assertListEqual(a, b)`	      | lists	              | 3.1    |
+| `assertTupleEqual(a, b)`	     | tuples	             | 3.1    |
+| `assertSetEqual(a, b)`	       | sets or frozensets	 | 3.1    |
+| `assertDictEqual(a, b)`	      | dicts	              | 3.1    |
+

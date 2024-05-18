@@ -214,3 +214,269 @@ if __name__ == '__main__':
 ````
 
 * 优势：seldom是一个全功能测试框架，支持 Web/App/API测试等。
+
+## unittest 基础
+
+unittest官方文档： https://docs.python.org/3/library/unittest.html
+
+在unittest文档中有四个重要的概念： Test Case、Test Suite、Test Runner和Test Fixture。只有理解了这几个概念，才能理解单元测试的基本特征。
+
+* Test Case
+
+Test Case是最小的测试单元，用于检查特定输入集合的特定返回值。unittest提供了`TestCase`基类，我们创建的测试类需要继承该基类，它可以用来创建新的测试用例。
+
+* Test Suite
+
+测试套件是测试用例、测试套件或两者的集合，用于组装一组要运行的测试。unittest提供了`TestSuite`类来创建测试套件。
+
+* Test Runner
+
+Test Runner是一个组件，用于协调测试的执行并向用户提供结果。Test
+Runner可以使用图形界面、文本界面或返回特殊值来展示执行测试的结果。unittest提供了`TextTestRunner`类运行测试用例。
+
+* Test Fixture
+
+Test
+Fixture代表执行一个或多个测试所需的环境准备，以及关联的清理动作。例如，创建临时或代理数据库、目录，或启动服务器进程。unittest中提供了`setUp()`/`tearDown()`、`setUpClass()`/`tearDownClass()`
+等方法来完成这些操作。
+
+### 第一个测试用例
+
+* 计算器
+
+实现一个`Calculator` 计算器类，`add()` 方法用于参数的加法计算。
+
+```python
+# calculator.py
+
+class Calculator:
+    """
+    计算器
+    """
+
+    def __init__(self, *args):
+        self.args = args
+
+    def add(self):
+        """
+        加法运算
+        """
+        return sum(self.args)
+```
+
+* 测试计算器
+
+通过`unittest` 编写`Calculator`类的测试用例。
+
+```python
+# test_calculator.py
+import unittest
+
+from calculator import Calculator
+
+
+class TestCalculator(unittest.TestCase):
+
+    # 用例前置动作
+    def setUp(self):
+        print("test start")
+
+    # 用例后置动作
+    def tearDown(self):
+        print("test end")
+
+    def test_add_one(self):
+        c = Calculator(2)
+        result = c.add()
+        self.assertEqual(result, 2)
+
+    def test_add_two(self):
+        c = Calculator(3, 5)
+        result = c.add()
+        self.assertEqual(result, 8)
+
+    def test_add_three(self):
+        c = Calculator(3, 5)
+        result = c.add()
+        self.assertEqual(result, 8)
+
+
+if __name__ == '__main__':
+    # 创建测试套件
+    suit = unittest.TestSuite()
+    suit.addTest(TestCalculator("test_add_one"))
+    suit.addTest(TestCalculator("test_add_two"))
+    suit.addTest(TestCalculator("test_add_three"))
+
+    # 创建测试运行器
+    runner = unittest.TextTestRunner()
+    runner.run(suit)
+```
+
+* 运行测试
+
+```bash
+python test_calculator.py
+
+test start
+test end
+.test start
+test end
+.test start
+test end
+.
+----------------------------------------------------------------------
+Ran 3 tests in 0.001s
+
+OK
+```
+
+
+### 命令行工具
+
+####  unitest 命令使用
+
+unittest模块可以从命令行中使用，来运行来自模块、类甚至单个测试方法的测试。
+
+```bash
+python -m unittest test_module1 test_module2
+python -m unittest test_module.TestClass
+python -m unittest test_module.TestClass.test_method
+```
+> `python -m` 以脚本形式运行库模块.
+
+可以传入包含任何组合模块名称和完全限定的类或方法名称的列表。
+
+测试模块也可以通过文件路径指定：
+
+```bash
+python -m unittest tests/test_something.py
+```
+
+这样可以让你使用shell文件名自动补全来指定测试模块。指定的文件仍然必须可以作为一个模块进行导入。路径会被转换成模块名，去掉‘.py’并将路径分隔符转换为‘.’。
+
+通过传入`-v` 选项 来运行更详细的测试:
+
+```bash
+python -m unittest -v test_module
+```
+
+当不带参数执行时，会启用`Test Discovery`（后面会介绍 `discovery()` 方法）:
+
+```bash
+python -m unittest
+```
+
+
+### unitest 命令选项
+
+获取所有命令行选项的列表:
+
+```bash
+python -m unittest -h
+
+usage: python.exe -m unittest [-h] [-v] [-q] [--locals] [-f] [-c] [-b] [-k TESTNAMEPATTERNS] [tests ...]
+
+positional arguments:
+  tests                a list of any number of test modules, classes and test methods.
+
+options:
+  -h, --help           show this help message and exit
+  -v, --verbose        Verbose output
+  -q, --quiet          Quiet output
+  --locals             Show local variables in tracebacks
+  -f, --failfast       Stop on first fail or error
+  -c, --catch          Catch Ctrl-C and display results so far
+  -b, --buffer         Buffer stdout and stderr during tests
+  -k TESTNAMEPATTERNS  Only run tests which match the given substring
+
+Examples:
+  python.exe -m unittest test_module               - run tests from test_module
+  python.exe -m unittest module.TestClass          - run tests from module.TestClass
+  python.exe -m unittest module.Class.test_method  - run specified test method
+  python.exe -m unittest path/to/test_file.py      - run tests from test_file.py
+
+usage: python.exe -m unittest discover [-h] [-v] [-q] [--locals] [-f] [-c] [-b] [-k TESTNAMEPATTERNS] [-s START]
+                                       [-p PATTERN] [-t TOP]
+
+options:
+  -h, --help            show this help message and exit
+  -v, --verbose         Verbose output
+  -q, --quiet           Quiet output
+  --locals              Show local variables in tracebacks
+  -f, --failfast        Stop on first fail or error
+  -c, --catch           Catch Ctrl-C and display results so far
+  -b, --buffer          Buffer stdout and stderr during tests
+  -k TESTNAMEPATTERNS   Only run tests which match the given substring
+  -s START, --start-directory START
+                        Directory to start discovery ('.' default)
+  -p PATTERN, --pattern PATTERN
+                        Pattern to match tests ('test*.py' default)
+  -t TOP, --top-level-directory TOP
+                        Top level directory of project (defaults to start directory)
+
+For test discovery all test modules must be importable from the top level directory of the project.
+```
+
+__重要选项说明__
+
+* `-b` / `--buffer` : 测试运行期间，标准输出和标准错误流会被缓冲。通过测试时的输出会被丢弃，测试失败或出错时，输出会被正常回显，并添加到失败消息中。
+
+```bash
+python -m unittest -b
+```
+
+* `-c` / `--catch` : 测试运行期间按`Control + C` 会等待当前测试结束，然后报告到目前为止的所有结果。第二次按`Control + C` 会引发正常的 KeyboardInterrupt 异常。
+
+```bash
+python -m unittest -c
+```
+
+* `-f`/ `--failfast`：在出现第一个错误或失败时停止测试运行。
+
+```bash
+ python -m unittest -f
+```
+
+* `-k`：只运行与模式或子字符串匹配的测试方法和类。可以多次使用此选项，这样所有与给定模式中的任何一个匹配的测试用例都会被包括进来。
+
+例如，`-k foo` 会匹配`foo_tests.SomeTest.test_something`，`bar_tests.SomeTest.test_foo`，但不会匹配`bar_tests.FooTest.test_something`。
+
+```bash
+python -m unittest -k cal
+```
+
+* `--durations N` 显示N个最慢的测试用例（N=0表示全部）(python 3.12 新增)。
+
+```bash
+python -m unittest --durations 2
+```
+
+* `-v`，`--verbose` : 详细的输出。
+
+```bash
+python -m unittest -v
+```
+
+__测试发现__
+
+Unittest支持简单的测试查找。为了与测试查找兼容，所有的测试文件必须是从项目的顶级目录中导入的模块或包（这意味着它们的文件名必须是有效的标识符）。
+
+测试发现在`TestLoader.discover()`中实现，但也可以从命令行使用。基本的命令行用法是:
+
+发现子命令有以下选项：
+
+* `-s`，`--start-directory`： 开始查找的目录（默认为`.`）
+
+* `-p`，`--pattern` 匹配测试文件的模式（默认为`test*.py`）
+
+* `-t`，`--top-level-directory`: 项目的顶层目录（默认为开始目录）
+
+`-s`，`-p`和`-t`选项可以按照这个顺序作为位置参数传入。以下两个命令行是等效的：
+
+```bash
+python -m unittest discover -s project_directory  -p "*_test.py"
+python -m unittest discover project_directory  "*_test.py"
+```
+
+除了作为路径外，还可以传入包名作为开始目录，例如`myproject.subpackage.test`。提供的包名将被导入，其在文件系统上的位置将被用作开始目录。

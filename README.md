@@ -217,7 +217,7 @@ if __name__ == '__main__':
 
 ## unittest 基础
 
-unittest官方文档： https://docs.python.org/3/library/unittest.html
+👉 [unittest — Unit testing framework](https://docs.python.org/3/library/unittest.html)
 
 在unittest文档中有四个重要的概念： Test Case、Test Suite、Test Runner和Test Fixture。只有理解了这几个概念，才能理解单元测试的基本特征。
 
@@ -541,3 +541,107 @@ __assertEqual()__
 | `assertSetEqual(a, b)`	       | sets or frozensets	 | 3.1    |
 | `assertDictEqual(a, b)`	      | dicts	              | 3.1    |
 
+### Fixtrue
+
+Fixtures的概念前面有过简单的介绍，我们可以形象地把它看作夹心饼干外层的两片饼干，这两片饼干就是setUp/tearDown，中间的奶油就是测试用例。
+
+![](/images/test_fixture.png)
+
+类和模块级别的固定装置是在`TestSuite`中实现的。当测试套件遇到来自新类的测试时，会调用上一个类的`tearDownClass()`
+（如果有的话），然后调用新类的`setUpClass()`。
+
+类似地，如果一个测试来自前一个测试的不同模块，则会运行前一个模块的`tearDownModule`，然后运行新模块的`setUpModule`。
+
+__setUp and tearDown__
+
+* `setUp`
+
+准备测试装置的方法。这个方法会在调用测试方法之前立即被调用；除了AssertionError或SkipTest之外，此方法引发的任何异常都将被视为错误而不是测试失败。默认实现什么也不做。
+
+* `tearDwon`
+
+测试方法被调用并记录结果后立即调用的方法。即使测试方法引发异常，也会调用此方法，因此子类中的实现可能需要特别小心地检查内部状态。此方法将仅在setUp()
+成功时调用，而不管测试方法的结果如何。默认实现不执行任何操作。
+
+```python
+import unittest
+
+
+class Test(unittest.TestCase):
+
+    def setUp(self) -> None:
+        print("before")
+
+    def test_case(self):
+        print("this is case")
+
+    def tearDown(self) -> None:
+        print("after")
+
+
+if __name__ == '__main__':
+    unittest.main()
+```
+
+__setUpClass and tearDownClass__
+
+这些必须被实现为类方法。
+
+```python
+import unittest
+
+
+class SomeWork():
+
+    def init_env(self):
+        print("初始化环境")
+
+    def clear_env(self):
+        print("清理环境配置")
+
+
+class Test(unittest.TestCase):
+    some_work = None
+
+    @classmethod
+    def setUpClass(cls):
+        cls.some_work = SomeWork()
+        cls.some_work.init_env()
+
+    def test_case(self):
+        print("this is case")
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.some_work.clear_env()
+
+
+if __name__ == '__main__':
+    unittest.main()
+```
+
+__setUpModule and tearDownModule__
+
+这些应该作为函数来实现。
+
+```python
+import unittest
+
+
+def setUpModule():
+    print("all module case before")
+
+
+def tearDownModule():
+    print("all module case after")
+
+
+class Test(unittest.TestCase):
+
+    def test_case(self):
+        print("this is case")
+
+
+if __name__ == '__main__':
+    unittest.main()
+```

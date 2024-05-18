@@ -1,0 +1,9 @@
+.idea
+*.pyc
+*.log
+report
+build
+dist
+seldom.egg-info
+log/
+.history

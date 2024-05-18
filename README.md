@@ -1,5 +1,9 @@
 # Learn-unittest-class
 
+* 课程大纲
+
+![](/images/unittest.png)
+
 ## 前言
 
 `unittest` 作为Python标准库中的单元测试框架，仍然可以满足我们的绝大部分单元测试相关工作，虽然，`pytest`
@@ -644,4 +648,64 @@ class Test(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+```
+
+### Skip Case
+
+在运行测试时，有时需要直接跳过某些测试用例，或者当测试用例符合某个条件时跳过测试，又或者直接将测试用例设置为失败。unittest提供了实现这些需求的装饰器。
+
+* `unittest.skip(reason)`
+
+无条件地跳过装饰的测试，需要说明跳过测试的原因。
+
+* `unittest.skipIf(condition, reason)`
+
+如果条件为真，则跳过装饰的测试。
+
+* `unittest.skipUnless(condition, reason)`
+
+当条件为真时，执行装饰的测试。
+
+* `unittest.expectedFailure()`
+
+不管执行结果是否失败，都将测试标记为失败。
+
+```python
+import unittest
+
+
+class MyTest(unittest.TestCase):
+
+    @unittest.skip("直接跳过测试")
+    def test_skip(self):
+        print("test aaa")
+
+    @unittest.skipIf(3 > 2, "当条件为真时跳过测试")
+    def test_skip_if(self):
+        print('test bbb')
+
+    @unittest.skipUnless(3 > 2, "当条件为真时执行测试")
+    def test_skip_unless(self):
+        print('test ccc')
+
+    @unittest.expectedFailure
+    def test_expected_failure(self):
+        self.assertEqual(2, 3)
+
+
+if __name__ == '__main__':
+    unittest.main()
+```
+
+* 运行测试
+
+```shell
+python test_skip.py
+
+xsstest ccc
+.
+----------------------------------------------------------------------
+Ran 4 tests in 0.001s
+
+OK (skipped=2, expected failures=1)
 ```

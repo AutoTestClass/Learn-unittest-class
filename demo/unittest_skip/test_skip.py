@@ -17,7 +17,15 @@ class MyTest(unittest.TestCase):
 
     @unittest.expectedFailure
     def test_expected_failure(self):
+        print('test ddd')
         self.assertEqual(2, 3)
+
+
+@unittest.skip("整个测试类跳过")
+class MySkippedTestCase(unittest.TestCase):
+
+    def test_not_run(self):
+        print('test eee')
 
 
 if __name__ == '__main__':

@@ -650,9 +650,11 @@ if __name__ == '__main__':
     unittest.main()
 ```
 
-### Skip Case
+### Skipping test and expected failure
 
-在运行测试时，有时需要直接跳过某些测试用例，或者当测试用例符合某个条件时跳过测试，又或者直接将测试用例设置为失败。unittest提供了实现这些需求的装饰器。
+#### 基本使用
+
+unittest支持跳过单个测试方法甚至整个测试类。此外，它还支持将测试标记为“预期失败”，即一个有问题并将失败的测试，但不应计入TestResult的失败。
 
 * `unittest.skip(reason)`
 
@@ -670,42 +672,117 @@ if __name__ == '__main__':
 
 不管执行结果是否失败，都将测试标记为失败。
 
+__基本的跳过示例__
+
+```python
+import sys
+import unittest
+
+__version__ = 0
+
+
+def element_is_exists() -> bool:
+    """
+    element is exists
+    :return: 
+    """
+    return False
+
+
+class MyTestCase(unittest.TestCase):
+
+    @unittest.skip("demonstrating skipping")
+    def test_nothing(self):
+        self.fail("shouldn't happen")
+
+    @unittest.skipIf(__version__ < 3, "not supported in this library version")
+    def test_format(self):
+        # Tests that work for only a certain version of the library.
+        pass
+
+    @unittest.skipUnless(sys.platform.startswith("win"), "requires Windows")
+    def test_windows_support(self):
+        # windows specific testing code
+        pass
+
+    def test_maybe_skipped(self):
+        if element_is_exists():
+            self.skipTest("external resource not available")
+        # test code that depends on the external resource
+        pass
+```
+
+__跳过测试类__
+
 ```python
 import unittest
 
 
-class MyTest(unittest.TestCase):
+@unittest.skip("showing class skipping")
+class MySkippedTestCase(unittest.TestCase):
+    def test_not_run(self):
+        pass
+```
 
-    @unittest.skip("直接跳过测试")
-    def test_skip(self):
-        print("test aaa")
+__预期用例失败__
 
-    @unittest.skipIf(3 > 2, "当条件为真时跳过测试")
-    def test_skip_if(self):
-        print('test bbb')
+```python
+import unittest
 
-    @unittest.skipUnless(3 > 2, "当条件为真时执行测试")
-    def test_skip_unless(self):
-        print('test ccc')
 
+class ExpectedFailureTestCase(unittest.TestCase):
     @unittest.expectedFailure
-    def test_expected_failure(self):
-        self.assertEqual(2, 3)
+    def test_fail(self):
+        self.assertEqual(1, 0, "broken")
+```
+
+跳过的测试不会运行`setUp()`或`tearDown()`。跳过的类不会运行`setUpClass()`或`tearDownClass()`
+。跳过的模块不会运行`setUpModule()`或`tearDownModule()`。
+
+#### 自己封装skip
+
+制作自己的跳过装饰器很容易，只需制作一个在希望跳过测试时调用skip()的装饰器即可。这个装饰器会跳过测试，除非传递的对象具有特定属性。
+
+```python
+import unittest
 
 
+def skipUnlessHasattr(obj, attr):
+    """
+    自定义 skipUnlessHasattr 装饰器
+    :param obj:
+    :param attr:
+    :return:
+    """
+    if hasattr(obj, attr):
+        return lambda func: func
+    return unittest.skip("{!r} doesn't have {!r}".format(obj, attr))
+
+
+#
+class ExampleClass:
+    """
+    示例类，包含一些属性
+    """
+
+    def __init__(self):
+        self.some_attribute = 'value'
+
+
+class MyTestCase(unittest.TestCase):
+
+    @skipUnlessHasattr(ExampleClass(), 'some_attribute')
+    def test_with_attribute(self):
+        self.assertTrue(True)
+
+    @skipUnlessHasattr(ExampleClass(), 'missing_attribute')
+    def test_without_attribute(self):
+        self.assertTrue(True)
+
+
+# 运行测试
 if __name__ == '__main__':
     unittest.main()
 ```
 
-* 运行测试
 
-```shell
-python test_skip.py
-
-xsstest ccc
-.
-----------------------------------------------------------------------
-Ran 4 tests in 0.001s
-
-OK (skipped=2, expected failures=1)
-```

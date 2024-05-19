@@ -785,4 +785,91 @@ if __name__ == '__main__':
     unittest.main()
 ```
 
+### 测试发现 discover
 
+`discover()`是unittest非常重要的一个方法，用于实现测试发现。
+
+```python
+import unittest
+
+unittest.defaultTestLoader.discover(start_dir, pattern='test*.py', top_level_dir=None)
+```
+
+__参数说明__
+
+* `test_dir`: 指定测试目录。
+* `pattern`: 指定查找用例的规则。
+* `top_level_dir`: 指定项目顶层目录。
+
+从指定的起始目录递归查找所有测试模块，返回一个包含它们的TestSuite对象。只会加载与模式匹配的测试文件（使用类似shell的模式匹配）。只有可导入的模块名称（即有效的Python标识符）才会被加载。
+
+__所有测试模块必须从项目的顶层可导入。如果起始目录不是顶层目录，则必须单独指定`top_level_dir`。__
+
+如果导入模块失败，例如由于语法错误，则这将被记录为单个错误，发现将继续。如果导入失败是因为引发了SkipTest，则将其记录为跳过而不是错误。
+
+如果发现一个包（包含一个名为__init__.py的文件的目录），将检查该包是否有load_tests函数。如果存在，则将调用package.load_tests(
+loader, tests, pattern)。测试发现会确保在调用期间只检查一次包是否包含测试，即使load_tests函数本身调用loader.discover。
+
+如果load_tests存在，则发现不会递归进入该包，load_tests负责加载包中的所有测试。
+
+模式故意不存储为loader属性，以便包可以继续自行发现。
+
+top_level_dir被内部存储，并用作对discover()的任何嵌套调用的默认值。也就是说，如果一个包的load_tests调用loader.discover()
+，则不需要传递此参数。
+
+start_dir可以是一个点分隔的模块名称，也可以是一个目录。
+
+#### 为什么要设置 top_level_dir ?
+
+假设你的项目结构如下：
+
+```
+my_project/
+├── top_level_dir/
+│   ├── __init__.py
+│   ├── main_module.py
+│   └── tests/
+│       ├── __init__.py
+│       ├── test_module1.py
+│       └── test_module2.py
+└── run_tests.py
+```
+
+1. 顶层目录是 `top_level_dir`:
+
+main_module.py 和 tests 文件夹位于 top_level_dir 中。测试文件 test_module1.py 和 test_module2.py 位于 top_level_dir/tests
+中。
+
+2. 导入路径设置：
+
+要从项目的顶层导入 test_module1 和 test_module2，它们的路径将是 top_level_dir.tests.test_module1 和
+top_level_dir.tests.test_module2。
+
+__使用 discover 方法__
+
+如果你在 run_tests.py 中运行测试，并且 run_tests.py 位于 my_project 目录下，则需要指定 top_level_dir，因为 start_dir
+并不是项目的顶层目录。
+
+```python
+import unittest
+
+if __name__ == '__main__':
+    # 指定测试开始的目录为 `top_level_dir/tests`
+    start_dir = 'top_level_dir/tests'
+    # 指定顶层目录为 `top_level_dir`
+    top_level_dir = 'top_level_dir'
+
+    loader = unittest.TestLoader()
+    suite = loader.discover(start_dir=start_dir, pattern='test*.py', top_level_dir=top_level_dir)
+
+    runner = unittest.TextTestRunner()
+    runner.run(suite)
+```
+
+在这个例子中：
+
+start_dir 是 `top_level_dir/tests`，它不是项目的顶层目录。因此，我们必须指定 top_level_dir 为 `top_level_dir`。这样，unittest
+会正确地将 top_level_dir 作为项目的顶层目录，然后在 top_level_dir/tests 目录中查找匹配 pattern='test*.py' 的测试模块。
+
+__当你不指定 top_level_dir 时，unittest 会尝试从 start_dir 的父目录开始导入模块。如果 start_dir
+不是项目的顶层目录，就会导致模块导入错误。例如，它可能会找不到 top_level_dir.tests.test_module1，因为它没有在正确的路径下查找。__

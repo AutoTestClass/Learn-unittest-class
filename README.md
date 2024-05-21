@@ -342,9 +342,9 @@ OK
 unittest模块可以从命令行中使用，来运行来自模块、类甚至单个测试方法的测试。
 
 ```bash
-python -m unittest test_module1 test_module2
-python -m unittest test_module.TestClass
-python -m unittest test_module.TestClass.test_method
+python -m unittest test_file1 test_file2
+python -m unittest test_file.TestClass
+python -m unittest test_file.TestClass.test_method
 ```
 
 > `python -m` 以脚本形式运行库模块.
@@ -362,8 +362,31 @@ python -m unittest tests/test_something.py
 通过传入`-v` 选项 来运行更详细的测试:
 
 ```bash
-python -m unittest -v test_module
+python -m unittest -v test_file
 ```
+
+❗ __使用 `python -m unittest` 不允许只指定目录名，不然检测不到任何用例。__
+
+目录结构：
+
+```
+tests/
+├── __init__.py
+├── test_file1.py
+└── test_file2.py
+```
+
+指定目录测试:
+
+```bash
+python -m unittest tests
+
+----------------------------------------------------------------------
+Ran 0 tests in 0.000s
+
+NO TESTS RAN
+```
+
 
 当不带参数执行时，会启用`Test Discovery`（后面会介绍 `discovery()` 方法）:
 

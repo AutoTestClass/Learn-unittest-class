@@ -16,7 +16,7 @@
 
 * unitest 发展轨迹：
 
-`PyUnit` -> `unittest` -> `unittest2` -> `unittest`（now）
+![](./images/histroy.png)
 
 ### PyUnit
 
@@ -78,7 +78,7 @@ __主要变化和改进__
 
 ## 有哪些库基于unittest
 
-### django `TestCase`
+### django TestCase
 
 Django 提供的 TestCase 类继承自 unittest.TestCase，并进行了扩展以支持 Django 应用的测试。
 

@@ -1,16 +1,22 @@
 # Learn-unittest-class
 
-* 课程大纲
-
-![](/images/unittest.png)
 
 ## 前言
 
-`unittest` 作为Python标准库中的单元测试框架，仍然可以满足我们的绝大部分单元测试相关工作，虽然，`pytest`
-正在变得更加流行。 `unittest`仍未过时，或者到了要被抛弃的地步，很多时候我们觉得`unittest`
-不是太好用，一方面是因为对它不是足够了解，另一方面它的生态（第三方扩展插件）比较糟糕。
+我们在学习自动化测试的时候，核心就是学习三个技术：
+
+* 编程语言
+* 单元测试框架 ⭐︎
+* 测试库
+
+`unittest` 作为Python标准库中的单元测试框架，仍然可以满足我们的绝大部分单元测试相关工作，虽然，`pytest` 正在变得更加流行。 `unittest`仍未过时，或者到了要被完全抛弃的地步，很多时候我们觉得`unittest` 不是太好用，一方面是因为对它不是足够了解，另一方面它的生态（第三方扩展插件）比较糟糕。
 
 本课程希望深入和全面的介绍 `unittest`的使用，以及教你如何开发 `unittest` 扩展插件，来满足单元测试/自动化测试相关工作。
+
+
+* 课程大纲
+
+![](/images/unittest.png)
 
 ## PyUnit、unittest 和 unittest2
 
@@ -20,15 +26,11 @@
 
 ### PyUnit
 
-PyUnit是最早的Python单元测试框架，其灵感来源于JUnit（Java中的一个单元测试框架）。 由Steve
-Purcell开发，并成为Python社区的一个非官方标准。PyUnit 不再作为一个独立的框架存在。它的功能和设计思想已经完全融入了 unittest
-模块。
+PyUnit是最早的Python单元测试框架，其灵感来源于JUnit（Java中的一个单元测试框架）。 由Steve Purcell开发，并成为Python社区的一个非官方标准。PyUnit 不再作为一个独立的框架存在。它的功能和设计思想已经完全融入了 unittest 模块。
 
 ### unittest
 
-unittest是Python标准库中的单元测试框架，实际上是对PyUnit的标准化和集成。在`Python 2.1`
-中首次引入，作为标准库的一部分，以后Python的每个版本都内置了unittest。
-它提供了丰富的测试功能，包括测试用例（TestCase）、测试套件（TestSuite）、测试加载器（TestLoader）、测试运行器（TestRunner）和各种断言方法。
+unittest是Python标准库中的单元测试框架，实际上是对PyUnit的标准化和集成。在`Python 2.1` 中首次引入，作为标准库的一部分，以后Python的每个版本都内置了unittest。 它提供了丰富的测试功能，包括测试用例（TestCase）、测试套件（TestSuite）、测试加载器（TestLoader）、测试运行器（TestRunner）和各种断言方法。
 
 __主要变化和改进__
 
@@ -42,8 +44,7 @@ __主要变化和改进__
 
 ### unittest2
 
-unittest2是unittest的增强版，主要用于提供在较旧版本Python中引入的unittest功能。其目标是为还没有升级到新版本Python的用户提供最新的unittest功能。在`Python 2.7`
-和`Python 3.2`中，unittest模块进行了重大改进和增强，这些改进也被包含在unittest2中。
+unittest2是unittest的增强版，主要用于提供在较旧版本Python中引入的unittest功能。其目标是为还没有升级到新版本Python的用户提供最新的unittest功能。在`Python 2.7` 和`Python 3.2`中，unittest模块进行了重大改进和增强，这些改进也被包含在unittest2中。
 
 __主要变化和改进__
 
@@ -235,13 +236,11 @@ Test Case是最小的测试单元，用于检查特定输入集合的特定返�
 
 * Test Runner
 
-Test Runner是一个组件，用于协调测试的执行并向用户提供结果。Test
-Runner可以使用图形界面、文本界面或返回特殊值来展示执行测试的结果。unittest提供了`TextTestRunner`类运行测试用例。
+Test Runner是一个组件，用于协调测试的执行并向用户提供结果。Test Runner可以使用图形界面、文本界面或返回特殊值来展示执行测试的结果。unittest提供了`TextTestRunner`类运行测试用例。
 
 * Test Fixture
 
-Test
-Fixture代表执行一个或多个测试所需的环境准备，以及关联的清理动作。例如，创建临时或代理数据库、目录，或启动服务器进程。unittest中提供了`setUp()`/`tearDown()`、`setUpClass()`/`tearDownClass()`
+Test Fixture代表执行一个或多个测试所需的环境准备，以及关联的清理动作。例如，创建临时或代理数据库、目录，或启动服务器进程。unittest中提供了`setUp()`/`tearDown()`、`setUpClass()`/`tearDownClass()`
 等方法来完成这些操作。
 
 ### 第一个测试用例
@@ -357,7 +356,7 @@ python -m unittest test_file.TestClass.test_method
 python -m unittest tests/test_something.py
 ```
 
-这样可以让你使用shell文件名自动补全来指定测试模块。指定的文件仍然必须可以作为一个模块进行导入。路径会被转换成模块名，去掉‘.py’并将路径分隔符转换为‘.’。
+这样可以让你使用shell文件名自动补全来指定测试模块。指定的文件仍然必须可以作为一个模块进行导入。路径会被转换成模块名，去掉`.py`并将路径分隔符转换为`.`。
 
 通过传入`-v` 选项 来运行更详细的测试:
 
@@ -467,8 +466,7 @@ python -m unittest -c
 
 * `-k`：只运行与模式或子字符串匹配的测试方法和类。可以多次使用此选项，这样所有与给定模式中的任何一个匹配的测试用例都会被包括进来。
 
-例如，`-k foo` 会匹配`foo_tests.SomeTest.test_something`，`bar_tests.SomeTest.test_foo`
-，但不会匹配`bar_tests.FooTest.test_something`。
+例如，`-k foo` 会匹配`foo_tests.SomeTest.test_something`，`bar_tests.SomeTest.test_foo`，但不会匹配`bar_tests.FooTest.test_something`。
 
 ```bash
 python -m unittest -k cal
@@ -574,8 +572,7 @@ Fixtures的概念前面有过简单的介绍，我们可以形象地把它看作
 
 ![](/images/test_fixture.png)
 
-类和模块级别的固定装置是在`TestSuite`中实现的。当测试套件遇到来自新类的测试时，会调用上一个类的`tearDownClass()`
-（如果有的话），然后调用新类的`setUpClass()`。
+类和模块级别的固定装置是在`TestSuite`中实现的。当测试套件遇到来自新类的测试时，会调用上一个类的`tearDownClass()`（如果有的话），然后调用新类的`setUpClass()`。
 
 类似地，如果一个测试来自前一个测试的不同模块，则会运行前一个模块的`tearDownModule`，然后运行新模块的`setUpModule`。
 
@@ -587,8 +584,7 @@ __setUp and tearDown__
 
 * `tearDwon`
 
-测试方法被调用并记录结果后立即调用的方法。即使测试方法引发异常，也会调用此方法，因此子类中的实现可能需要特别小心地检查内部状态。此方法将仅在setUp()
-成功时调用，而不管测试方法的结果如何。默认实现不执行任何操作。
+测试方法被调用并记录结果后立即调用的方法。即使测试方法引发异常，也会调用此方法，因此子类中的实现可能需要特别小心地检查内部状态。此方法将仅在`setUp()`成功时调用，而不管测试方法的结果如何。默认实现不执行任何操作。
 
 ```python
 import unittest
@@ -759,8 +755,7 @@ class ExpectedFailureTestCase(unittest.TestCase):
         self.assertEqual(1, 0, "broken")
 ```
 
-跳过的测试不会运行`setUp()`或`tearDown()`。跳过的类不会运行`setUpClass()`或`tearDownClass()`
-。跳过的模块不会运行`setUpModule()`或`tearDownModule()`。
+跳过的测试不会运行`setUp()`或`tearDown()`。跳过的类不会运行`setUpClass()`或`tearDownClass()`。跳过的模块不会运行`setUpModule()`或`tearDownModule()`。
 
 #### 自己封装skip
 
@@ -826,14 +821,14 @@ __参数说明__
 
 从指定的起始目录递归查找所有测试模块，返回一个包含它们的TestSuite对象。只会加载与模式匹配的测试文件（使用类似shell的模式匹配）。只有可导入的模块名称（即有效的Python标识符）才会被加载。
 
-__所有测试模块必须从项目的顶层可导入。如果起始目录不是顶层目录，则必须单独指定`top_level_dir`。__
+所有测试模块必须从项目的顶层可导入。如果起始目录不是顶层目录，则必须单独指定`top_level_dir`。
 
 如果导入模块失败，例如由于语法错误，则这将被记录为单个错误，发现将继续。如果导入失败是因为引发了SkipTest，则将其记录为跳过而不是错误。
 
 如果发现一个包（包含一个名为__init__.py的文件的目录），将检查该包是否有load_tests函数。如果存在，则将调用package.load_tests(
 loader, tests, pattern)。测试发现会确保在调用期间只检查一次包是否包含测试，即使load_tests函数本身调用loader.discover。
 
-如果load_tests存在，则发现不会递归进入该包，load_tests负责加载包中的所有测试。
+如果`load_tests`存在，则发现不会递归进入该包，`load_tests`负责加载包中的所有测试。
 
 模式故意不存储为loader属性，以便包可以继续自行发现。
 
@@ -860,18 +855,15 @@ my_project/
 
 1. 顶层目录是 `top_level_dir`:
 
-main_module.py 和 tests 文件夹位于 top_level_dir 中。测试文件 test_module1.py 和 test_module2.py 位于 top_level_dir/tests
-中。
+`main_module.py` 和 `tests` 文件夹位于 `top_level_dir` 中。测试文件 `test_module1.py` 和 `test_module2.py` 位于 `top_level_dir/tests`中。
 
 2. 导入路径设置：
 
-要从项目的顶层导入 test_module1 和 test_module2，它们的路径将是 top_level_dir.tests.test_module1 和
-top_level_dir.tests.test_module2。
+要从项目的顶层导入 `test_module1` 和 `test_module2`，它们的路径将是 `top_level_dir.tests.test_module1` 和 `top_level_dir.tests.test_module2`。
 
 __使用 discover 方法__
 
-如果你在 run_tests.py 中运行测试，并且 run_tests.py 位于 my_project 目录下，则需要指定 top_level_dir，因为 start_dir
-并不是项目的顶层目录。
+如果你在 `run_tests.py` 中运行测试，并且 `run_tests.py` 位于 `my_project` 目录下，则需要指定 `top_level_dir`，因为 `start_dir`并不是项目的顶层目录。
 
 ```python
 import unittest
@@ -891,8 +883,54 @@ if __name__ == '__main__':
 
 在这个例子中：
 
-start_dir 是 `top_level_dir/tests`，它不是项目的顶层目录。因此，我们必须指定 top_level_dir 为 `top_level_dir`。这样，unittest
-会正确地将 top_level_dir 作为项目的顶层目录，然后在 top_level_dir/tests 目录中查找匹配 pattern='test*.py' 的测试模块。
+`start_dir` 是 `top_level_dir/tests`，它不是项目的顶层目录。因此，我们必须指定 top_level_dir 为 `top_level_dir`。这样，unittest 会正确地将 `top_level_dir` 作为项目的顶层目录，然后在 `top_level_dir/tests` 目录中查找匹配 pattern='test*.py' 的测试模块。
 
-__当你不指定 top_level_dir 时，unittest 会尝试从 start_dir 的父目录开始导入模块。如果 start_dir
-不是项目的顶层目录，就会导致模块导入错误。例如，它可能会找不到 top_level_dir.tests.test_module1，因为它没有在正确的路径下查找。__
+当你不指定 `top_level_dir` 时，unittest 会尝试从 `start_dir` 的父目录开始导入模块。如果 `start_dir`不是项目的顶层目录，就会导致模块导入错误。例如，它可能会找不到 `top_level_dir.tests.test_module1`，因为它没有在正确的路径下查找。
+
+
+#### 自定义测试加载器
+
+`discover()` 只运行指定一个目录（start_dir）和匹配规则（pattern）执行用例，如果需要同时运行不同目录下的不同用例。我们可以自定义一个运行加载器。查找多个目录下面的用例放到一个测试套件中。
+
+```py
+import os
+
+import unittest
+
+
+def custom_test_loader(start_dir: str, sub_dir_list: dict):
+    """
+    自定义测试加载器
+    :param start_dir: 开始查找用例的目录，
+    :param sub_dir_list: 包含的子目录
+    :return:
+    """
+    test_suite = unittest.TestSuite()
+
+    for subdir, pattern in sub_dir_list.items():
+        sub_dir_path = os.path.join(start_dir, subdir)
+        if os.path.isdir(sub_dir_path) is True:
+            # 使用unittest.defaultTestLoader来发现并加载指定子目录下的测试
+            sub_suite = unittest.defaultTestLoader.discover(
+                start_dir=sub_dir_path,
+                pattern=pattern,
+                top_level_dir=start_dir)
+            test_suite.addTest(sub_suite)
+
+    return test_suite
+
+
+if __name__ == '__main__':
+    # 假设你的测试目录结构从当前目录开始
+    start_dir = os.path.dirname(os.path.abspath(__file__))
+    # 定义你想要包含的子目录列表
+    run_sub_dir = {
+        "unittest_assert": "*_equal.py",
+        "unittest_base": "test_*.py"
+    }
+    suite = custom_test_loader(start_dir, run_sub_dir)
+    runner = unittest.TextTestRunner()
+    runner.run(suite)
+```
+
+其中，`start_dir`用于指定顶层目录；`run_sub_dir`用于定义要运行的子目录，以及文件的匹配规则，这样就可以比较灵活的配置多个目录的用例执行了。

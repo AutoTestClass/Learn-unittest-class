@@ -278,16 +278,22 @@ import unittest
 from calculator import Calculator
 
 
+# 1. 测试类 TestCalculator 必须继承 unittest.TestCase
 class TestCalculator(unittest.TestCase):
 
-    # 用例前置动作
     def setUp(self):
+        """
+        用例前置动作：启动浏览器、连接数据库，准备的数据 等。
+        """
         print("test start")
 
-    # 用例后置动作
     def tearDown(self):
+        """
+        用例后置动作：关闭浏览器，关闭数据库，删除/还原数据 等。
+        """
         print("test end")
 
+    # 2.测试用例必须以 test 开头
     def test_add_one(self):
         c = Calculator(2)
         result = c.add()
@@ -332,6 +338,72 @@ test end
 Ran 3 tests in 0.001s
 
 OK
+```
+
+### 错误的用例设计
+
+一些新人在使用 unittest 设计用例是往往会犯一些低级的错误。
+
+❌ 错误的方法。
+
+```py
+import unittest
+
+
+class TestImproperUse(unittest.TestCase):
+    """
+    用例错误的设计
+    """
+
+    def test_login(self, username, password):
+        """
+        1. 给用例加参数
+        """
+        print("this is login case")
+
+    def test_case_1(self):
+        print("this is test case 1")
+
+    def test_case_2(self):
+        """
+        2. 在一条用例里面调用另一条用例。
+        """
+        self.test_case_1()
+        print("this is test case 2")
+
+
+if __name__ == '__main__':
+    unittest.main()
+```
+
+__1. 给用例加参数。__
+
+用例在执行的时候会报验证的错误，默认用例执行的时候是通过加载器去加载用例的。所以，加载器不知道`test_login()` 所需要的参数，以及如何穿参数。
+
+__2. 在一条用例里面调用另一条用例。__
+
+运行的时候，代码上没有问题。但这样设计是错误。每个用例都是独立的个体，不应该被另一条用例调用。如果两条用例都用到了相同的操作，应该把相同的操作封装成一个功能的方法，然后分别被两条用例调用。
+
+✔️ 正确的方法
+
+```python
+import unittest
+
+
+class CorrectUsage(unittest.TestCase):
+
+    def login(self, username, password):
+        """封装的登录"""
+        print("this is login method")
+
+    def test_case_1(self):
+        self.login("admin", "admin123")
+        print("this is test case 1")
+
+    def test_case_2(self):
+        self.login("guest", "guest123")
+        print("this is test case 2")
+
 ```
 
 ### 命令行工具

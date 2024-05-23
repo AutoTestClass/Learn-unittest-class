@@ -1200,3 +1200,87 @@ if __name__ == '__main__':
     runner.run(suite)
 ```
 
+### 常见问题
+
+
+#### 用例执行顺序
+
+测试用例的执行顺序涉及多个层级：
+
+多个测试目录 > 多个测试文件 > 多个测试类 > 多个测试方法（测试用例）。
+
+unittest提供的`main()`方法和`discover()`方法是按照什么顺序查找测试用例的呢？
+
+
+我们先运行一个例子，再解释unittest的执行策略。
+
+```py
+import unittest
+
+class TestBdd(unittest.TestCase):
+
+    def setUp(self):
+        print("test TestBdd:")
+    
+    def test_ccc(self):
+        print("test ccc")
+
+    def test_aaa(self):
+        print("test aaa")
+
+
+class TestAdd(unittest.TestCase):
+
+    def setUp(self):
+        print("test TestAdd:")
+
+    def test_bbb(self):
+        print("test bbb")
+
+
+if __name__ == '__main__':
+    unittest.main()
+```
+
+执行结果如下。
+
+```bash
+test TestAdd:
+test bbb
+.test TestBdd:
+test aaa
+.test TestBdd:
+test ccc
+.
+----------------------------------------------------------------------
+Ran 3 tests in 0.000s
+```
+
+无论执行多少次，结果都是一样的。通过上面的结果，相信你已经找到main()方法执行测试用例的规律了。
+
+因为unittest默认根据ASCII码的顺序加载测试用例的（__数字与字母的顺序为`0~9`，`A~Z`，`a~z`__），所以`TestAdd`类会优先于`TestBdd`类被执行，`test_aaa()`方法会优先于`test_ccc()`方法被执行，也就是说，它并不是按照测试用例的创建顺序从上到下执行的。
+
+`discover()`方法和`main()`方法的执行顺序是一样的。对于测试目录与测试文件来说，上面的规律同样适用。`test_aaa.py`文件会优先于`test_bbb.py`文件被执行。所以，如果想让某个测试文件先执行，可以在命名上加以控制。
+
+测试套件`TestSuite`类，通过`addTest()`方法可以控制用例的执行顺序。
+
+#### 多级目录无法识别用例
+
+当测试用例的数量达到一定量级时，就要考虑目录划分，比如规划如下测试目录。
+
+```
+test_project
+├──/test_case/
+│   ├── test_bbb/
+│   │   ├── test_ccc/
+│   │   │   └── test_c.py
+│   │   └── test_b.py
+│   ├── test_ddd/
+│   │   └── test_d.py      
+│   └── test_a.py  
+└─ run_tests.py
+```
+
+对于上面的目录结构，如果将`discover()`方法中的`start_dir`参数定义为`./test_case`目录，那么只能加载`test_a.py`文件中的测试用例。
+
+如何让unittest查找test_case/下子目录中的测试文件呢？方法很简单，就是在每个子目录下放一个`__init__.py`文件。`__init__.py`文件的作用是将一个目录标记成一个标准的Python模块。

@@ -570,7 +570,7 @@ __assertEqual()__
 
 Fixtures的概念前面有过简单的介绍，我们可以形象地把它看作夹心饼干外层的两片饼干，这两片饼干就是setUp/tearDown，中间的奶油就是测试用例。
 
-![](/images/test_fixture.png)
+![](/images/test_fixture.jpg)
 
 类和模块级别的固定装置是在`TestSuite`中实现的。当测试套件遇到来自新类的测试时，会调用上一个类的`tearDownClass()`（如果有的话），然后调用新类的`setUpClass()`。
 
@@ -837,7 +837,7 @@ top_level_dir被内部存储，并用作对discover()的任何嵌套调用的默
 
 start_dir可以是一个点分隔的模块名称，也可以是一个目录。
 
-#### 为什么要设置 top_level_dir ?
+#### top_level_dir参数说明
 
 假设你的项目结构如下：
 
@@ -853,16 +853,6 @@ my_project/
 └── run_tests.py
 ```
 
-1. 顶层目录是 `top_level_dir`:
-
-`main_module.py` 和 `tests` 文件夹位于 `top_level_dir` 中。测试文件 `test_module1.py` 和 `test_module2.py` 位于 `top_level_dir/tests`中。
-
-2. 导入路径设置：
-
-要从项目的顶层导入 `test_module1` 和 `test_module2`，它们的路径将是 `top_level_dir.tests.test_module1` 和 `top_level_dir.tests.test_module2`。
-
-__使用 discover 方法__
-
 如果你在 `run_tests.py` 中运行测试，并且 `run_tests.py` 位于 `my_project` 目录下，则需要指定 `top_level_dir`，因为 `start_dir`并不是项目的顶层目录。
 
 ```python
@@ -874,8 +864,11 @@ if __name__ == '__main__':
     # 指定顶层目录为 `top_level_dir`
     top_level_dir = 'top_level_dir'
 
-    loader = unittest.TestLoader()
-    suite = loader.discover(start_dir=start_dir, pattern='test*.py', top_level_dir=top_level_dir)
+    suite = unittest.defaultTestLoader.discover(
+        start_dir=start_dir,
+        pattern='test*.py',
+        top_level_dir=top_level_dir
+    )
 
     runner = unittest.TextTestRunner()
     runner.run(suite)
@@ -883,7 +876,7 @@ if __name__ == '__main__':
 
 在这个例子中：
 
-`start_dir` 是 `top_level_dir/tests`，它不是项目的顶层目录。因此，我们必须指定 top_level_dir 为 `top_level_dir`。这样，unittest 会正确地将 `top_level_dir` 作为项目的顶层目录，然后在 `top_level_dir/tests` 目录中查找匹配 pattern='test*.py' 的测试模块。
+`start_dir` 是 `top_level_dir/tests`，它不是项目的顶层目录。因此，我们必须指定 `top_level_dir` 为 `top_level_dir`。这样，unittest 会正确地将 `top_level_dir` 作为项目的顶层目录，然后在 `top_level_dir/tests` 目录中查找匹配 pattern='test*.py' 的测试模块。
 
 当你不指定 `top_level_dir` 时，unittest 会尝试从 `start_dir` 的父目录开始导入模块。如果 `start_dir`不是项目的顶层目录，就会导致模块导入错误。例如，它可能会找不到 `top_level_dir.tests.test_module1`，因为它没有在正确的路径下查找。
 
@@ -934,3 +927,82 @@ if __name__ == '__main__':
 ```
 
 其中，`start_dir`用于指定顶层目录；`run_sub_dir`用于定义要运行的子目录，以及文件的匹配规则，这样就可以比较灵活的配置多个目录的用例执行了。
+
+
+### 子测试 subtests
+
+在你的测试中如果用例有很小的差异时，比如一些参数不同，unittest允许在测试方法的主体内使用`subTest()`上下文管理器来区分它们。
+
+例如下面的测试：
+
+```python
+import unittest
+
+
+def calculate_discounted_price(original_price, discount_rate):
+    """
+    计算打折后的价格。
+    :param original_price: 原价
+    :param discount_rate: 折扣率（0-1之间的浮点数）
+    :return: 折后价格
+    """
+    return original_price * (1 - discount_rate)
+
+
+class TestDiscountCalculator(unittest.TestCase):
+
+    def test_calculate_discounted_price(self):
+        # 定义一系列测试用例
+        test_cases = [
+            (100, 0.1, 90.0),  # 10% 的折扣
+            (200, 0.2, 160.0),  # 20% 的折扣
+            (300, 0.3, 220.0),  # 30% 的折扣 210.0 error
+            (400, 0.4, 240.0),  # 40% 的折扣
+            (500, 0.5, 250.0),  # 50% 的折扣
+        ]
+
+        # 使用 subTest 对每个测试用例进行迭代
+        for original_price, discount_rate, expected_price in test_cases:
+            print(f"原价：{original_price}, 折扣率：{discount_rate}, 现价：{expected_price}")
+            with self.subTest(
+                    original_price=original_price,
+                    discount_rate=discount_rate,
+                    expected_price=expected_price
+            ):
+                calculated_price = calculate_discounted_price(original_price, discount_rate)
+                self.assertAlmostEqual(calculated_price, expected_price,
+                                       msg=f"对于原价{original_price}和折扣率{discount_rate}，计算结果有误。")
+
+
+if __name__ == '__main__':
+    unittest.main()
+```
+
+执行结果：
+
+```shell
+> python test_sub_test.py
+
+python .\test_sub_test.py
+原价：100, 折扣率：0.1, 现价：90.0
+原价：200, 折扣率：0.2, 现价：160.0
+原价：300, 折扣率：0.3, 现价：220.0
+F原价：400, 折扣率：0.4, 现价：240.0
+原价：500, 折扣率：0.5, 现价：250.0
+
+======================================================================
+FAIL: test_calculate_discounted_price (__main__.TestDiscountCalculator.test_calculate_discounted_price) (original_price=300, discount_rate=0.3, expected_price=220.0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\github\Learn-unittest-class\demo\unittest_sub\test_sub_test.py", line 35, in test_calculate_discounted_price
+    self.assertAlmostEqual(calculated_price, expected_price,
+AssertionError: 210.0 != 220.0 within 7 places (10.0 difference) : 对于原价300和折扣率0.3，计算结果有误。
+
+----------------------------------------------------------------------
+Ran 1 test in 0.001s
+
+FAILED (failures=1)
+```
+
+如果不使用子测试，执行将在第一次失败后停止。
+

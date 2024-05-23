@@ -1006,3 +1006,125 @@ FAILED (failures=1)
 
 如果不使用子测试，执行将在第一次失败后停止。
 
+
+### 其他
+
+#### main() 方法
+
+每次都调用`TestSuite` 和 `TestRunner`去组装和运行测试会比较麻烦， `main()` 是为了方便测试当前文件中的测试用例，
+
+```python
+import unittest
+
+
+class TestLogin(unittest.TestCase):
+
+    def test_login_fail(self):
+        ...
+
+    def test_login_success(self):
+        ...
+
+
+class TestRegister(unittest.TestCase):
+
+    def test_register_fail(self):
+        ...
+
+    def test_register_success(self):
+        ...
+
+
+if __name__ == '__main__':
+    unittest.main()
+```
+
+只要用例编写遵循 unittest 规范，`main()`即可查找用例。
+
+
+#### main方法入参
+
+```python
+import unittest
+
+unittest.main(module='__main__', defaultTest=None, argv=None, testRunner=None, testLoader=unittest.defaultTestLoader, exit=True, verbosity=1, failfast=None, catchbreak=None, buffer=None, warnings=None)
+```
+
+__主要参数说明__
+
+* module ：指定测试模块，默认`__main__` 即当前文件，也可以指定当前同目录下的其他文件。
+* verbosity： 日志级别，想看更详细的日志可以设置为 `2`。
+* failfast: 更快的使用例失败，设置为`True` 出现第一条失败的用例停止执行。
+* buffer： 测试运行期间，标准输出和标准错误流会被缓冲。
+
+
+### 测试加载 TestLoader
+
+TestLoader类用于从类和模块创建测试套件。通常情况下，不需要创建这个类的实例；unittest模块提供了一个实例，可以作为`unittest.defaultTestLoader`共享。然而，使用子类或实例允许定制一些可配置属性。
+
+TestLoader提供了一些加载用例的方法，用于查找用例。
+
+* `loadTestsFromTestCase()`
+
+这个方法用于从给定的测试用例类加载测试。它会为该类创建一个实例，并收集所有以 test_ 开头的方法作为测试用例。
+
+* `loadTestsFromName()`
+
+这个方法用于根据给定的测试用例或测试套件的全名（包括模块名）来加载测试。如果名字指的是一个测试用例类，则会创建该类的一个实例作为测试用例；如果名字指的是一个测试方法，则会加载那个方法作为单独的测试。
+
+* `loadTestsFromNames()`
+
+此方法接受一个名字列表，每个名字可以是测试用例类、方法或模块的名字，并根据这些名字加载测试。它比 loadTestsFromName() 更灵活，可以一次性加载多个测试。
+
+* `loadTestsFromModule()`
+
+这个方法直接从给定的模块加载所有测试用例。它会自动查找该模块中所有继承自`unittest.TestCase`的类，并收集它们的测试方法。
+
+
+__使用示例__
+
+假设有一个测试模块 `test_example.py`，其中包含一个测试类 `ExampleTest` 和一个测试方法 `test_case_1` 和 `test_case_1`。
+
+```python
+# test_example.py
+import unittest
+
+
+class ExampleTest(unittest.TestCase):
+    def test_case_1(self):
+        self.assertEqual(1 + 1, 2)
+
+    def test_case_2(self):
+        self.assertEqual(2 + 2, 4)
+```
+
+不同加载器的用法：
+
+```python
+import unittest
+
+import test_example
+from test_example import ExampleTest
+
+if __name__ == '__main__':
+    test_loader = unittest.TestLoader()
+    # 加载测试类
+    suite = test_loader.loadTestsFromTestCase(ExampleTest)
+
+    # 加载测试
+    suite = test_loader.loadTestsFromName("test_example.ExampleTest.test_case_1")
+
+    # 加载多个测试
+    suite = test_loader.loadTestsFromNames([
+        "test_example.ExampleTest.test_case_1",
+        "test_example.ExampleTest.test_case_2"
+    ])
+
+    # 加载测试模块
+    suite = test_loader.loadTestsFromModule(test_example)
+
+    # 测试运行器
+    runner = unittest.TextTestRunner()
+    runner.run(suite)
+```
+

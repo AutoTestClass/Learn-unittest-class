@@ -466,7 +466,7 @@ NO TESTS RAN
 python -m unittest
 ```
 
-### unitest 命令选项
+#### unitest 命令选项
 
 获取所有命令行选项的列表:
 
@@ -742,7 +742,7 @@ if __name__ == '__main__':
     unittest.main()
 ```
 
-### Skipping test and expected failure
+### 跳过测试和预期失败
 
 #### 基本使用
 
@@ -1080,7 +1080,7 @@ FAILED (failures=1)
 如果不使用子测试，执行将在第一次失败后停止。
 
 
-### 其他
+### 类&方法使用
 
 #### main() 方法
 
@@ -1115,7 +1115,7 @@ if __name__ == '__main__':
 只要用例编写遵循 unittest 规范，`main()`即可查找用例。
 
 
-#### main方法入参
+__main方法入参__
 
 ```python
 import unittest
@@ -1131,7 +1131,7 @@ __主要参数说明__
 * buffer： 测试运行期间，标准输出和标准错误流会被缓冲。
 
 
-### 测试加载 TestLoader
+#### 测试加载 TestLoader
 
 TestLoader类用于从类和模块创建测试套件。通常情况下，不需要创建这个类的实例；unittest模块提供了一个实例，可以作为`unittest.defaultTestLoader`共享。然而，使用子类或实例允许定制一些可配置属性。
 

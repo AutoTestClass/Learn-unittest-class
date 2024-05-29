@@ -12,6 +12,16 @@
 
 `unittest` 作为Python标准库中的单元测试框架，仍然可以满足我们的绝大部分单元测试相关工作，虽然，`pytest` 正在变得更加流行。 `unittest`仍未过时，或者到了要被完全抛弃的地步，很多时候我们觉得`unittest` 不是太好用，一方面是因为对它不是足够了解，另一方面它的生态（第三方扩展插件）比较糟糕。
 
+### unittest 优势
+
+`unittest` 仍然是非常优秀的单元测试框架，以下是他的优势和特点。
+
+* `标准库集成`：unittest 是 Python 标准库的一部分，安装 Python 时默认可用，不需要额外安装。
+
+* `面向对象的设计`：通过继承 `unittest.TestCase` 组织测试代码，结构清晰，便于扩展和维护。
+
+* `丰富的断言方法`：提供了多种断言方法，方便进行各种类型的测试检查。
+
 本课程希望深入和全面的介绍 `unittest`的使用，以及教你如何开发 `unittest` 扩展插件，来满足单元测试/自动化测试相关工作。
 
 
@@ -19,7 +29,7 @@
 
 ![](/images/unittest.png)
 
-## PyUnit、unittest 和 unittest2
+## unittest历史
 
 * unitest 发展轨迹：
 
@@ -70,15 +80,8 @@ __主要变化和改进__
 
 因此，PyUnit、unittest和unittest2基本上是同一个框架的不同演进阶段，而unittest成为了现在Python标准库中的正式单元测试框架。
 
-## unittest 优势
 
-* `标准库集成`：unittest 是 Python 标准库的一部分，安装 Python 时默认可用，不需要额外安装。
-
-* `面向对象的设计`：通过继承 `unittest.TestCase` 组织测试代码，结构清晰，便于扩展和维护。
-
-* `丰富的断言方法`：提供了多种断言方法，方便进行各种类型的测试检查。
-
-## 有哪些库基于unittest
+## 基于unittest的库和框架
 
 ### django TestCase
 
@@ -639,7 +642,7 @@ __assertEqual()__
 | `assertSetEqual(a, b)`	       | sets or frozensets	 | 3.1    |
 | `assertDictEqual(a, b)`	      | dicts	              | 3.1    |
 
-### Fixtrue
+### Fixture
 
 Fixtures的概念前面有过简单的介绍，我们可以形象地把它看作夹心饼干外层的两片饼干，这两片饼干就是setUp/tearDown，中间的奶油就是测试用例。
 
@@ -1285,3 +1288,83 @@ test_project
 对于上面的目录结构，如果将`discover()`方法中的`start_dir`参数定义为`./test_case`目录，那么只能加载`test_a.py`文件中的测试用例。
 
 如何让unittest查找test_case/下子目录中的测试文件呢？方法很简单，就是在每个子目录下放一个`__init__.py`文件。`__init__.py`文件的作用是将一个目录标记成一个标准的Python模块。
+
+
+## unittest扩展开发
+
+### 数据驱动
+
+数据驱动时非常重要的功能，尤其时做 UI自动化和 接口自动化的时候，可以极大的节省的用例的编写。unittest 有第三方的测试数据驱动测试库。
+
+#### Parameterized
+
+`Parameterized`是Python的一个参数化库，同时支持unittest、Nose和pytest单元测试框架。
+
+GitHub地址：https://github.com/wolever/parameterized
+
+Parameterized支持pip安装。
+
+```
+> pip install parameterized
+```
+
+这里将通过Parameterized实现参数化。
+
+```
+import math
+import unittest
+
+from parameterized import parameterized
+from parameterized import parameterized_class
+
+
+@parameterized_class(('a', 'b', 'expected_sum', 'expected_product'), [
+    (1, 2, 3, 2),
+    (5, 5, 10, 25)
+])
+class TestMathClass(unittest.TestCase):
+    def test_add(self):
+        self.assertEqual(self.a + self.b, self.expected_sum)
+
+    def test_multiply(self):
+        self.assertEqual(self.a * self.b, self.expected_product)
+
+
+class TestMathUnitTest(unittest.TestCase):
+    @parameterized.expand([
+        ("negative", -1.5, -2.0),
+        ("integer", 1, 1.0),
+        ("large fraction", 1.6, 1),
+    ])
+    def test_floor(self, name, input, expected):
+        self.assertEqual(math.floor(input), expected)
+```
+
+这里的主要改动在测试用例部分。
+
+首先，导入`Parameterized`库下面的`parameterized`类。
+
+其次，通过`@parameterized.expand()`来装饰测试用例`test_floor()`。
+
+在`@parameterized.expand()`中，每个元组都可以被认为是一条测试用例。元组中的数据为该条测试用例变化的值。在测试用例中，通过参数来取每个元组中的数据。
+
+最后，使用unittest的`main()`方法，设置`verbosity`参数为2，输出更详细的执行日志。运行上面的测试用例，结果如下。
+
+```shell
+> python test_parameterized_demo.py
+
+test_add (__main__.TestMathClass_0.test_add) ... ok
+test_multiply (__main__.TestMathClass_0.test_multiply) ... ok
+test_add (__main__.TestMathClass_1.test_add) ... ok
+test_multiply (__main__.TestMathClass_1.test_multiply) ... ok
+test_floor_0_negative (__main__.TestMathUnitTest.test_floor_0_negative) ... ok
+test_floor_1_integer (__main__.TestMathUnitTest.test_floor_1_integer) ... ok
+test_floor_2_large_fraction (__main__.TestMathUnitTest.test_floor_2_large_fraction) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.001s
+```
+
+通过测试结果可以看到，因为是根据`@parameterized.expand()`中元组的个数来统计测试用例数的，所以产生了3条测试用例。
+
+`test_floor`为定义的测试用例的名称。参数化会自动加上`0`、`1`和`2`来区分每条测试用例。

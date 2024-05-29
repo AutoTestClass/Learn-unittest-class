@@ -12,7 +12,13 @@ def tearDownModule():
 class Test(unittest.TestCase):
 
     def test_case(self):
-        print("this is case")
+        print("this is  Test  class case")
+
+
+class Test2(unittest.TestCase):
+
+    def test_case(self):
+        print("this is Test2 class  case")
 
 
 if __name__ == '__main__':

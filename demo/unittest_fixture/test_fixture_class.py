@@ -21,6 +21,9 @@ class Test(unittest.TestCase):
     def test_case(self):
         print("this is case")
 
+    def test_case2(self):
+        print("this is case2")
+
     @classmethod
     def tearDownClass(cls):
         cls.some_work.clear_env()

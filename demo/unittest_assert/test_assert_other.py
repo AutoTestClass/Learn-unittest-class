@@ -1,7 +1,7 @@
 import unittest
 
 
-def add_floats(a, b):
+def add_floats(a: float, b: float):
     return a + b
 
 
@@ -18,7 +18,7 @@ class MyTestClass:
 data1 = MyTestClass(10)
 data2 = MyTestClass(5)
 list1 = [1, 2, 3, 4]
-list2 = [1, 2, 3, '4']  # 注意这里有一个字符串'4'
+list2 = [1, 2, 3, 4, 5, 6]  # 注意这里有一个字符串'4'
 
 
 class TestAssertions(unittest.TestCase):
@@ -29,7 +29,7 @@ class TestAssertions(unittest.TestCase):
 
         # 由于浮点数的精度问题，直接比较可能不等
         # 使用assertAlmostEqual来允许微小的差异
-        self.assertAlmostEqual(result, 0.3, delta=0.0001)
+        self.assertAlmostEqual(result, 0.4, delta=0.0001)
 
         # 另一个例子，这次我们故意制造一个较大的误差
         bad_result = 0.3001

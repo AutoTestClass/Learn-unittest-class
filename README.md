@@ -1041,9 +1041,9 @@ class TestDiscountCalculator(unittest.TestCase):
         for original_price, discount_rate, expected_price in test_cases:
             print(f"原价：{original_price}, 折扣率：{discount_rate}, 现价：{expected_price}")
             with self.subTest(
-                    original_price=original_price,
-                    discount_rate=discount_rate,
-                    expected_price=expected_price
+                    op=original_price,
+                    dr=discount_rate,
+                    ep=expected_price
             ):
                 calculated_price = calculate_discounted_price(original_price, discount_rate)
                 self.assertAlmostEqual(calculated_price, expected_price,
@@ -1128,6 +1128,7 @@ unittest.main(module='__main__', defaultTest=None, argv=None, testRunner=None, t
 
 __主要参数说明__
 
+* testRunner: 指定运行器，默认 `unittest.TextTestRunner`。
 * module ：指定测试模块，默认`__main__` 即当前文件，也可以指定当前同目录下的其他文件。
 * verbosity： 日志级别，想看更详细的日志可以设置为 `2`。
 * failfast: 更快的使用例失败，设置为`True` 出现第一条失败的用例停止执行。
@@ -1167,11 +1168,13 @@ import unittest
 
 
 class ExampleTest(unittest.TestCase):
+
     def test_case_1(self):
         self.assertEqual(1 + 1, 2)
 
     def test_case_2(self):
         self.assertEqual(2 + 2, 4)
+    ...
 ```
 
 不同加载器的用法：
@@ -1308,12 +1311,11 @@ Parameterized支持pip安装。
 > pip install parameterized
 ```
 
-这里将通过Parameterized实现参数化。
+这里将通过Parameterized实现unittest参数化。
 
-```
+```python
 import math
 import unittest
-
 from parameterized import parameterized
 from parameterized import parameterized_class
 
@@ -1368,3 +1370,188 @@ Ran 7 tests in 0.001s
 通过测试结果可以看到，因为是根据`@parameterized.expand()`中元组的个数来统计测试用例数的，所以产生了3条测试用例。
 
 `test_floor`为定义的测试用例的名称。参数化会自动加上`0`、`1`和`2`来区分每条测试用例。
+
+
+#### ddt
+
+> Data-Driven Tests for Python Unittest
+
+Python unittest单元测试框架数据驱动测试。
+
+DDT（数据驱动测试）允许您通过使用不同的测试数据来执行一个测试用例，使其看起来像是多个测试用例。
+
+github: https://github.com/datadriventests/ddt
+
+DDT支持pip安装。
+
+```shell
+> pip install ddt
+> pip install pyyaml  # 需要用到yaml文件
+```
+
+__使用示例__
+
+
+DDT由一个类装饰器DDT(用于TestCase子类)和两个方法装饰器(用于想要相乘的测试)组成:
+
+* `data`: 包含与您想要提供给测试的值一样多的参数。
+* `file_data`: 将从JSON或YAML文件加载测试数据。
+
+一般来说，数据中的每个值都将作为单个参数传递给您的测试方法。如果这些值是元组等，您将需要在测试中解包它们。另外，还可以使用一个额外的装饰器`unpack`，它将自动将元组和列表解包为多个参数，将字典解包为多个关键字参数。请参考下面的例子。
+
+* 目录结构
+
+```
+├───unittest_data_driver
+│   └───data/
+|   |   ├───test_data_dict_dict.json
+|   |   └───test_data_dict_dict.yaml
+├───test_ddt_file_data.py
+├───test_ddt_data.py
+```
+
+* 数据驱动
+
+```python
+test_ddt_data.py
+import unittest
+from ddt import ddt, data, unpack
+
+
+@ddt
+class TestBaidu(unittest.TestCase):
+
+    @data(["case1", "selenium"], ["case2", "ddt"], ["case3", "python"])
+    @unpack
+    def test_list_data(self, case, search_key):
+        print("第一组测试用例：", case)
+
+    @data(("case1", "selenium"), ("case2", "ddt"), ("case3", "python"))
+    @unpack
+    def test_tuple_data(self, case, search_key):
+        print("第二组测试用例：", case)
+
+    @data({"search_key": "selenium"},
+          {"search_key": "ddt"},
+          {"search_key": "python"})
+    @unpack
+    def test_dict_data(self, search_key):
+        print("第三组测试用例：", search_key)
+
+
+if __name__ == '__main__':
+    unittest.main(verbosity=2)
+```
+
+执行结果：
+
+```bash
+> python test_ddt_demo.py
+
+test_dict_data_1 (__main__.TestBaidu.test_dict_data_1) ... 第三组测试用例： selenium
+ok
+test_dict_data_2 (__main__.TestBaidu.test_dict_data_2) ... 第三组测试用例： ddt
+ok
+test_dict_data_3 (__main__.TestBaidu.test_dict_data_3) ... 第三组测试用例： python
+ok
+test_list_data_1___case1____selenium__ (__main__.TestBaidu.test_list_data_1___case1____selenium__) ... 第一组测试用例： case1
+ok
+test_list_data_2___case2____ddt__ (__main__.TestBaidu.test_list_data_2___case2____ddt__) ... 第一组测试用例： case2
+ok
+test_list_data_3___case3____python__ (__main__.TestBaidu.test_list_data_3___case3____python__) ... 第一组测试用例： case3
+ok
+test_tuple_data_1___case1____selenium__ (__main__.TestBaidu.test_tuple_data_1___case1____selenium__) ... 第二组测试用例： case1
+ok
+test_tuple_data_2___case2____ddt__ (__main__.TestBaidu.test_tuple_data_2___case2____ddt__) ... 第二组测试用例： case2
+ok
+test_tuple_data_3___case3____python__ (__main__.TestBaidu.test_tuple_data_3___case3____python__) ... 第二组测试用例： case3
+ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.003s
+
+OK
+```
+
+首先，DDT也会给数据驱动的用例加上编号：`1`、`2`、`3`；其次，用例的参数也会作为用例名称的一部分。
+
+* 文件数据驱动
+
+```python
+# test_ddt_file_data.py
+import unittest
+from ddt import ddt, file_data
+
+@ddt
+class TestBaidu(unittest.TestCase):
+
+    @file_data('data/test_data_dict_dict.json')
+    def test_file_data_json_dict_dict(self, start, end, value):
+        self.assertLess(start, end)
+        self.assertLess(value, end)
+        self.assertGreater(value, start)
+
+    @file_data('data/test_data_dict_dict.yaml')
+    def test_file_data_yaml_dict_dict(self, start, end, value):
+        self.assertLess(start, end)
+        self.assertLess(value, end)
+        self.assertGreater(value, start)
+
+
+if __name__ == '__main__':
+    unittest.main(verbosity=2)
+```
+
+* 依赖的数据文件。
+
+`data/test_data_dict_dict.json`
+
+```json
+{
+    "positive_integer_range": {
+        "start": 0,
+        "end": 2,
+        "value": 1
+    },
+    "negative_integer_range": {
+        "start": -2,
+        "end": 0,
+        "value": -1
+    },
+    "positive_real_range": {
+        "start": 0.0,
+        "end": 1.0,
+        "value": 0.5
+    },
+    "negative_real_range": {
+        "start": -1.0,
+        "end": 0.0,
+        "value": -0.5
+    }
+}
+```
+
+`data/test_data_dict_dict.yaml`
+
+```yaml
+positive_integer_range:
+  start: 0
+  end: 2
+  value: 1
+
+negative_integer_range:
+  start: -2
+  end: 0
+  value: -1
+
+positive_real_range:
+  start: 0.0
+  end: 1.0
+  value: 0.5
+
+negative_real_range:
+  start: -1.0
+  end: 0.0
+  value: -0.5
+```
+

@@ -20,4 +20,10 @@ class TestRegister(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    unittest.main(failfast=True)
+    unittest.main(
+        failfast=True,
+        testRunner=unittest.TextTestRunner,
+        module="test_example",
+        verbosity=2,
+        buffer=True
+    )

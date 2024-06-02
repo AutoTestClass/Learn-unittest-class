@@ -27,9 +27,9 @@ class TestDiscountCalculator(unittest.TestCase):
         for original_price, discount_rate, expected_price in test_cases:
             print(f"原价：{original_price}, 折扣率：{discount_rate}, 现价：{expected_price}")
             with self.subTest(
-                    original_price=original_price,
-                    discount_rate=discount_rate,
-                    expected_price=expected_price
+                    op=original_price,
+                    dr=discount_rate,
+                    ep=expected_price
             ):
                 calculated_price = calculate_discounted_price(original_price, discount_rate)
                 self.assertAlmostEqual(calculated_price, expected_price,

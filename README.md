@@ -1555,3 +1555,87 @@ negative_real_range:
   value: -0.5
 ```
 
+#### 设计数据驱动
+
+`Parameterized` 和 `ddt` 对于unittest都不够完美。
+
+* `Parameterized`：首先，不支持数据文件，其次，` @parameterized.expand()`的写法明显是个二等公民。
+
+* `ddt`：使用太多的装饰器了，例如，使用数据驱动要用到 `@ddt`、`@data`、`@unpack`等装饰器；此外，不支持 `csv/excel` 等数据文件。
+
+
+__@data装饰器__
+
+将`Parameterized` 的`@parameterized.expand()` 的代码剥离出来，进行修改和重命名为 `@data()`。[查看代码](./plugin/data_driver/)
+
+
+* 使用示例
+
+```py
+# test_param.py
+import unittest
+from data_driver.param import data
+
+
+class DataTest(unittest.TestCase):
+
+    @data([
+        ("case1", "hello"),
+        ("case2", "hi"),
+        ("case3", "你好"),
+    ])
+    def test_data_tuple(self, name, keyword):
+        """
+        tuple数据
+        """
+        print("tuple->", name, keyword)
+
+    @data([
+        ["case1", "hello"],
+        ["case2", "hi"],
+        ["case3", "你好"],
+    ])
+    def test_data_list(self, name, keyword):
+        """
+        list数据
+        """
+        print("list->", name, keyword)
+
+    @data([
+        {"scene": "case1", "keyword": "hello"},
+        {"scene": "case2", "keyword": "hi"},
+        {"scene": "case3", "keyword": "你好"},
+    ])
+    def test_data_dict(self, name, keyword):
+        """
+        dict数据
+        """
+        print("dict->", name, keyword)
+
+
+if __name__ == '__main__':
+    unittest.main()
+```
+
+通过简单的设计可以支持`tuple`、`list`、`dict` 三种格式的数据。
+
+* 运行结果
+
+```bash
+> python test_param.py
+
+dict-> case1 hello
+.dict-> case2 hi
+.dict-> case3 你好
+.list-> case1 hello
+.list-> case2 hi
+.list-> case3 你好
+.tuple-> case1 hello
+.tuple-> case2 hi
+.tuple-> case3 你好
+.
+----------------------------------------------------------------------
+Ran 9 tests in 0.002s
+
+OK
+```

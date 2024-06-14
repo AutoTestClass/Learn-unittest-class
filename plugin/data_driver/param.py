@@ -2,6 +2,7 @@
 引用 parameterized 库
 """
 import inspect
+import os
 import warnings
 from functools import wraps
 
@@ -14,8 +15,94 @@ from parameterized.parameterized import skip_on_empty_helper
 
 try:
     from conversion import check_data
+    from conversion import csv_to_list
+    from conversion import excel_to_list
+    from conversion import yaml_to_list
+    from conversion import json_to_list
 except ModuleNotFoundError:
     from .conversion import check_data
+    from .conversion import csv_to_list
+    from .conversion import excel_to_list
+    from .conversion import yaml_to_list
+    from .conversion import json_to_list
+
+
+def _search_file_path(file_name: str, file_dir: str) -> str:
+    """
+    search file path
+    :param file_name:
+    :param file_dir:
+    """
+    if os.path.isfile(file_name) is True:
+        file_path = file_name
+
+    find_dir = os.path.dirname(os.path.dirname(file_dir))
+
+    file_path = None
+    for root, _, files in os.walk(find_dir, topdown=False):
+        for file in files:
+            if file == file_name:
+                file_path = os.path.join(root, file_name)
+                break
+        else:
+            continue
+        break
+
+    if file_path is None:
+        return ""
+
+    return file_path
+
+
+def file_data(file: str, line: int = 1, sheet: str = "Sheet1", key: str = None, end_line: int = None):
+    """
+    Support file parameterization.
+
+    :param file: file name
+    :param line: Start line number of an Excel/CSV file
+    :param end_line:  End line number of an Excel/CSV file
+    :param sheet: Excel sheet name
+    :param key: Key name of an YAML/JSON file
+
+    Usage:
+    d.json
+    ```json
+    {
+     "login":  [
+        ["admin", "admin123"],
+        ["guest", "guest123"]
+     ]
+    }
+    ```
+    >>  @file_data(file="d.json", key="login")
+    ... def test_case(self, username, password):
+    ...     print(username)
+    ...     print(password)
+    """
+    if file is None:
+        raise FileExistsError("File name does not exist.")
+
+    stack_t = inspect.stack()
+    ins = inspect.getframeinfo(stack_t[1][0])
+    file_dir = os.path.dirname(os.path.abspath(ins.filename))
+
+    file_path = _search_file_path(file, file_dir)
+    if file_path == "":
+        raise FileExistsError(f"No '{file}' data file found.")
+
+    suffix = file.split(".")[-1]
+    if suffix == "csv":
+        data_list = csv_to_list(file_path, line=line, end_line=end_line)
+    elif suffix == "xlsx":
+        data_list = excel_to_list(file_path, sheet=sheet, line=line, end_line=end_line)
+    elif suffix == "json":
+        data_list = json_to_list(file_path, key=key)
+    elif suffix == "yaml":
+        data_list = yaml_to_list(file_path, key=key)
+    else:
+        raise FileExistsError(f"Your file is not supported: {file}")
+
+    return data(data_list)
 
 
 def data(input, name_func=None, doc_func=None, skip_on_empty=False,

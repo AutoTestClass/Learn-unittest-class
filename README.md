@@ -1569,7 +1569,7 @@ __@data装饰器__
 将`Parameterized` 的`@parameterized.expand()` 的代码剥离出来，进行修改和重命名为 `@data()`。[查看代码](./plugin/data_driver/)
 
 
-* 使用示例
+* **使用示例**
 
 ```py
 # test_param.py
@@ -1619,7 +1619,7 @@ if __name__ == '__main__':
 
 通过简单的设计可以支持`tuple`、`list`、`dict` 三种格式的数据。
 
-* 运行结果
+* **运行结果**
 
 ```bash
 > python test_param.py
@@ -1636,6 +1636,83 @@ dict-> case1 hello
 .
 ----------------------------------------------------------------------
 Ran 9 tests in 0.002s
+
+OK
+```
+
+__@file_data装饰器__
+
+在实现 `@data()`的前提下，我们进一步实现 `@file_data()`装饰，支持`json/yaml/csv/excel`四种数据格式。[查看代码](./plugin/data_driver/)
+
+* **使用示例**
+
+```py
+# test_param.py
+import unittest
+from data_driver.param import file_data
+
+
+
+class FileDataTest(unittest.TestCase):
+
+    @file_data("file_data_dict.json")
+    def test_file_data_json(self, start, end, value):
+        """
+        json数据文件
+        """
+        print("json file->", start, end, value)
+
+    @file_data("file_data_dict.yaml")
+    def test_file_data_yaml(self, start, end, value):
+        """
+        yaml数据文件
+        """
+        print("yaml file->", start, end, value)
+
+    @file_data("file_data_csv.csv", line=2)
+    def test_file_data_csv(self, firstname, lastname):
+        """
+        csv数据文件
+        """
+        print("csv file->", firstname, lastname)
+
+    @file_data(file="file_data_excel.xlsx", sheet="Sheet1", line=2)
+    def test_file_data_excel(self, firstname, lastname):
+        """
+        excel数据文件
+        """
+        print("excel file->", firstname, lastname)
+
+
+if __name__ == '__main__':
+    unittest.main()
+```
+
+* **说明：**
+  - 数据支持`用例文件`向上查找三层，所以，测试文件可以放到任意目录，`file_data()` 都能找到，不需要指定数据文件目录。
+  -  根据数据文件类型不同，相应的参数也会有差异。比如，excel文件需要指定 sheet标签页，line从第几行开始读取。 
+
+
+* **运行结果**
+
+```bash
+> python test_param.py
+
+.csv file-> Forest Hobbs
+.csv file-> Ferdinand Lozano
+.excel file-> Marshall Conrad
+.excel file-> Ruthie Pitts
+.json file-> 0 2 1
+.json file-> -2 0 -1
+.json file-> 0.0 1.0 0.5
+.json file-> -1.0 0.0 -0.5
+.yaml file-> 0 2 1
+.yaml file-> -2 0 -1
+.yaml file-> 0 1 0.5
+.yaml file-> -1 0 -0.5
+.
+----------------------------------------------------------------------
+Ran 12 tests in 0.004s
 
 OK
 ```

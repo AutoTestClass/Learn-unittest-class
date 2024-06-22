@@ -1854,3 +1854,65 @@ Time Elapsed: 0:00:00.001987
 
 ![](./images/html_report.png)
 
+
+### 黑白名单支持
+
+unittest本身不支持给用例打标签，并基于标签运行&跳过测试用例，不过，我们仍然可以通过重写unittest的`TextTestRunner` 实现这个功能。
+
+`label_plugin`实现了标签的黑白名单功能。[查看代码](./plugin/label_plugin/)
+
+* **使用示例**
+
+```py
+# test_label.py
+import unittest
+from label_plugin import label
+from label_plugin.LabelTestRunner import LabelTestRunner
+
+
+class LabelTest(unittest.TestCase):
+
+    @label("base")
+    def test_label_base(self):
+        self.assertEqual(1 + 1, 2)
+
+    @label("slow")
+    def test_label_slow(self):
+        self.assertEqual(1, 2)
+
+    def test_no_label(self):
+        self.assertEqual(2 + 3, 5)
+
+
+if __name__ == '__main__':
+    suit = unittest.TestSuite()
+    suit.addTests([
+        LabelTest("test_label_base"),
+        LabelTest("test_label_slow"),
+        LabelTest("test_no_label"),
+    ])
+    runner = LabelTestRunner(
+        whitelist=["base"],  # 设置白名单
+        # blacklist=["slow"],  # 设置黑名单
+    )
+    runner.run(suit)
+
+```
+
+* **说明：**
+  - 如果只运行标签为`base`的用例，设置白名单（whitelist）。
+  - 如果只想屏蔽标签为`slow`的用例，设置黑名单（blacklist）。
+
+* **运行结果**
+
+```bash
+> python test_label.py
+.ss
+----------------------------------------------------------------------
+Ran 3 tests in 0.000s
+
+OK (skipped=2)
+```
+
+> 注意：不执行的用例会被**跳过**，并记录到用例的运行总数中。
+

@@ -1716,3 +1716,141 @@ Ran 12 tests in 0.004s
 
 OK
 ```
+
+
+### 测试报告
+
+unittest 不支持生成测试报告，`tungwaiyip` 基于unittest设计了`HTMLTestRunner`用于生成HTML报告，由于年代久远，风格老旧，且仅仅支持python2，于是，各种基于`HTMLTestRunner`的魔改营运而生。
+
+Github: https://github.com/tungwaiyip/HTMLTestRunner
+
+Github: https://github.com/SeldomQA/XTestRunner (更具现代风格的HTML测试报告)
+
+当然我们要实现基于unittest的测试报告并不复杂，核心是重写unittest的`TextTestRunner`即可。
+
+#### JSON测试报告
+
+我实现了 `jsonrunner` 运行器用于生成JSON格式的测试报告。[查看代码](./plugin/jsonrunner/)
+
+* **使用示例**
+
+```py
+# test_jsonrunner.py
+import unittest
+from jsonrunner.runner import JSONTestRunner
+
+
+class TestDemo(unittest.TestCase):
+    """Test Demo class"""
+
+    def test_pass(self):
+        """pass case"""
+        self.assertEqual(5, 5)
+
+    def test_fail(self):
+        """fail case"""
+        self.assertEqual(5, 6)
+
+    def test_error(self):
+        """error case"""
+        self.assertEqual(a, 6)
+
+    @unittest.skip("skip case")
+    def test_skip(self):
+        """skip case"""
+        ...
+
+
+if __name__ == '__main__':
+    suit = unittest.TestSuite()
+    suit.addTests([
+        TestDemo("test_pass"),
+        TestDemo("test_skip"),
+        TestDemo("test_fail"),
+        TestDemo("test_error")
+    ])
+
+    runner = JSONTestRunner(output="./reports/result.json")
+    runner.run(suit)
+```
+
+* **说明：**
+  - 调用jsonrunner中的`JSONTestRunner`运行器，`output`参数指写输出的文件名。然后，通过`run()`方法传入运行的测试套件。
+
+* **运行结果**
+
+```bash
+> python test_jsonrunner.py
+
+Time Elapsed: 0:00:00.001987
+.1SFE
+```
+
+* **生成JSON结果**
+
+![](./images/json_report.png)
+
+
+#### HTML测试报告
+
+我实现了 `htmlrunner` 运行器用于生成JSON格式的测试报告。[查看代码](./plugin/htmlrunner/)
+
+* **使用示例**
+
+```py
+# test_htmlrunner.py
+import unittest
+
+from htmlrunner.runner import HTMLTestRunner
+
+
+class TestDemo(unittest.TestCase):
+    """Test Demo class"""
+
+    def test_pass(self):
+        """pass case"""
+        self.assertEqual(5, 5)
+
+    def test_fail(self):
+        """fail case"""
+        self.assertEqual(5, 6)
+
+    def test_error(self):
+        """error case"""
+        self.assertEqual(a, 6)
+
+    @unittest.skip("skip case")
+    def test_skip(self):
+        """skip case"""
+        ...
+
+
+if __name__ == '__main__':
+    suit = unittest.TestSuite()
+    suit.addTests([
+        TestDemo("test_pass"),
+        TestDemo("test_skip"),
+        TestDemo("test_fail"),
+        TestDemo("test_error")
+    ])
+
+    runner = HTMLTestRunner(output="./reports/result.html")
+    runner.run(suit)
+```
+
+* **说明：**
+  - 调用htmlrunner中的`HTMLTestRunner`运行器，`output`参数指写输出的文件名。然后，通过`run()`方法传入运行的测试套件。
+
+* **运行结果**
+
+```bash
+> python test_htmlrunner.py
+
+Time Elapsed: 0:00:00.001987
+.1SFE
+```
+
+* **生成HTML结果**
+
+![](./images/html_report.png)
+

@@ -3,8 +3,9 @@ def label(*labels):
     Test case classification label
 
     Usage:
-        @label('quick')
         class MyTest(unittest.TestCase):
+
+            @label('quick')
             def test_foo(self):
                 pass
     """

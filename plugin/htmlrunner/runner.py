@@ -31,9 +31,10 @@ class HTMLTestRunner:
     运行测试：生成HTML格式的测试结果
     """
 
-    def __init__(self, output, verbosity=1):
+    def __init__(self, output, verbosity=1, report_name: str = "unittest单元测试报告"):
         self.output = output
         self.verbosity = verbosity
+        self.report_name = report_name
         self.start_time = datetime.datetime.now()
 
     def run(self, test):
@@ -45,9 +46,9 @@ class HTMLTestRunner:
         case_info = self.test_result(result)
 
         # 测试结果转HTML
-        self.result_to_html(case_info)
-
         stop_time = datetime.datetime.now()
+        self.result_to_html(case_info, stop_time)
+
         print(f"Time Elapsed: {stop_time - self.start_time}")
         return result
 
@@ -131,14 +132,15 @@ class HTMLTestRunner:
 
         return case
 
-    def result_to_html(self, result):
+    def result_to_html(self, result, stop_time):
         """
         测试结果转HTML
         """
-        tmp = template.render(class_list=result)
+        run_time = str(stop_time - self.start_time)
+        tmp = template.render(class_list=result,
+                              report_name=self.report_name,
+                              run_time=run_time)
 
-        # 定义HTML文件名
-        html_file_name = self.output.replace(".json", ".html")
         # 保存HTML结果
-        with open(html_file_name, "w", encoding="utf-8") as f:
+        with open(self.output, "w", encoding="utf-8") as f:
             f.write(tmp)

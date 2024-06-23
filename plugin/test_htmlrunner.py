@@ -33,5 +33,5 @@ if __name__ == '__main__':
         TestDemo("test_error")
     ])
 
-    runner = HTMLTestRunner(output="./reports/result.html")
+    runner = HTMLTestRunner(output="./reports/result.html", report_name="unittest演示测试报告")
     runner.run(suit)

@@ -122,4 +122,4 @@ class JSONTestRunner:
         测试结果转JSON
         """
         with open(self.output, "w", encoding="utf-8") as f:
-            json.dump(result, f)
+            json.dump(result, f, ensure_ascii=False, indent=4)

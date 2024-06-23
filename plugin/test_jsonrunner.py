@@ -33,5 +33,5 @@ if __name__ == '__main__':
         TestDemo("test_error")
     ])
 
-    runner = JSONTestRunner(output="./reports/result.json")
+    runner = JSONTestRunner(output="./reports/result.json", verbosity=2)
     runner.run(suit)
